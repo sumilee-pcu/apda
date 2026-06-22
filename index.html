@@ -31,7 +31,12 @@
     display:flex;flex-direction:column;gap:8px;transition:border-color .2s}
   .card:hover{border-color:#3a4250}
   .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
-  .name{font-weight:600;font-size:15px}
+  .ident{display:flex;align-items:center;gap:10px;min-width:0}
+  .ico-slot{width:26px;height:26px;border-radius:7px;flex:none;background:#222733}
+  .ico{width:26px;height:26px;border-radius:7px;flex:none;object-fit:contain;background:#222733}
+  .ico-fb{width:26px;height:26px;border-radius:7px;flex:none;display:flex;align-items:center;
+    justify-content:center;font-size:13px;font-weight:700;color:#0f1115}
+  .name{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .dot{width:10px;height:10px;border-radius:50%;flex:none}
   .cond{font-size:13px;font-weight:600}
   .desc{font-size:12px;color:var(--muted);line-height:1.5;min-height:1.5em}
@@ -70,30 +75,32 @@
 </div>
 
 <script>
-// 진료 대상. type: "statuspage"(/api/v2/status.json) | "instatus"(/summary.json)
+// 진료 대상. type: "statuspage"(/api/v2/status.json) | "instatus"(/summary.json) | "gcp"(Google Cloud)
+// domain: 로고 favicon 조회용 브랜드 도메인. match: GCP 인시던트 필터 키워드.
 const PATIENTS = [
   // 모델 · API
-  { name: "OpenAI",      host: "status.openai.com",         type: "statuspage", cat: "모델 · API" },
-  { name: "Claude",      host: "status.claude.com",         type: "statuspage", cat: "모델 · API" },
-  { name: "Perplexity",  host: "status.perplexity.com",     type: "instatus",   cat: "모델 · API" },
-  { name: "Cohere",      host: "status.cohere.com",         type: "statuspage", cat: "모델 · API" },
-  { name: "Groq",        host: "groqstatus.com",            type: "statuspage", cat: "모델 · API" },
-  { name: "Replicate",   host: "www.replicatestatus.com",   type: "statuspage", cat: "모델 · API" },
+  { name: "OpenAI",      host: "status.openai.com",         type: "statuspage", cat: "모델 · API", domain: "openai.com" },
+  { name: "Claude",      host: "status.claude.com",         type: "statuspage", cat: "모델 · API", domain: "claude.com" },
+  { name: "Gemini",      host: "status.cloud.google.com",   type: "gcp",        cat: "모델 · API", domain: "gemini.google.com", match: /gemini|vertex ai|generative language|ai studio/i },
+  { name: "Perplexity",  host: "status.perplexity.com",     type: "instatus",   cat: "모델 · API", domain: "perplexity.ai" },
+  { name: "Cohere",      host: "status.cohere.com",         type: "statuspage", cat: "모델 · API", domain: "cohere.com" },
+  { name: "Groq",        host: "groqstatus.com",            type: "statuspage", cat: "모델 · API", domain: "groq.com" },
+  { name: "Replicate",   host: "www.replicatestatus.com",   type: "statuspage", cat: "모델 · API", domain: "replicate.com" },
   // 음성 · 미디어
-  { name: "ElevenLabs",  host: "status.elevenlabs.io",      type: "statuspage", cat: "음성 · 미디어" },
-  { name: "Stability AI",host: "status.stability.ai",       type: "statuspage", cat: "음성 · 미디어" },
-  { name: "Runway",      host: "status.runwayml.com",       type: "statuspage", cat: "음성 · 미디어" },
+  { name: "ElevenLabs",  host: "status.elevenlabs.io",      type: "statuspage", cat: "음성 · 미디어", domain: "elevenlabs.io" },
+  { name: "Stability AI",host: "status.stability.ai",       type: "statuspage", cat: "음성 · 미디어", domain: "stability.ai" },
+  { name: "Runway",      host: "status.runwayml.com",       type: "statuspage", cat: "음성 · 미디어", domain: "runwayml.com" },
   // 코딩 도구
-  { name: "Cursor",      host: "status.cursor.com",         type: "statuspage", cat: "코딩 도구" },
-  { name: "Windsurf",    host: "status.windsurf.com",       type: "statuspage", cat: "코딩 도구" },
-  { name: "Lovable",     host: "status.lovable.dev",        type: "statuspage", cat: "코딩 도구" },
-  { name: "v0",          host: "v0-status.com",             type: "statuspage", cat: "코딩 도구" },
-  { name: "GitHub",      host: "www.githubstatus.com",      type: "statuspage", cat: "코딩 도구" },
+  { name: "Cursor",      host: "status.cursor.com",         type: "statuspage", cat: "코딩 도구", domain: "cursor.com" },
+  { name: "Windsurf",    host: "status.windsurf.com",       type: "statuspage", cat: "코딩 도구", domain: "windsurf.com" },
+  { name: "Lovable",     host: "status.lovable.dev",        type: "statuspage", cat: "코딩 도구", domain: "lovable.dev" },
+  { name: "v0",          host: "v0-status.com",             type: "statuspage", cat: "코딩 도구", domain: "v0.dev" },
+  { name: "GitHub",      host: "www.githubstatus.com",      type: "statuspage", cat: "코딩 도구", domain: "github.com" },
   // 인프라
-  { name: "Pinecone",    host: "status.pinecone.io",        type: "statuspage", cat: "인프라" },
-  { name: "LangSmith",   host: "status.smith.langchain.com",type: "statuspage", cat: "인프라" },
-  { name: "Supabase",    host: "status.supabase.com",       type: "statuspage", cat: "인프라" },
-  { name: "Vercel",      host: "www.vercel-status.com",     type: "statuspage", cat: "인프라" },
+  { name: "Pinecone",    host: "status.pinecone.io",        type: "statuspage", cat: "인프라", domain: "pinecone.io" },
+  { name: "LangSmith",   host: "status.smith.langchain.com",type: "statuspage", cat: "인프라", domain: "langchain.com" },
+  { name: "Supabase",    host: "status.supabase.com",       type: "statuspage", cat: "인프라", domain: "supabase.com" },
+  { name: "Vercel",      host: "www.vercel-status.com",     type: "statuspage", cat: "인프라", domain: "vercel.com" },
 ];
 
 const CONDITION = {
@@ -115,6 +122,29 @@ const INSTATUS_MAP = {
 const board = document.getElementById("board");
 const cards = {};
 
+// 글자 배지 폴백 색상 (이름 해시 기반)
+const FB_COLORS = ["#3b8add","#27c093","#e4663b","#9b7be0","#e6a817","#d4537e"];
+function fbBadge(p){
+  const span = document.createElement("span");
+  span.className = "ico-fb";
+  let h = 0; for (const ch of p.name) h = (h*31 + ch.charCodeAt(0)) % FB_COLORS.length;
+  span.style.background = FB_COLORS[h];
+  span.textContent = p.name[0];
+  return span;
+}
+// DuckDuckGo 파비콘 우선, 3초 내 실패/지연 시 글자 배지로 폴백
+function loadIcon(slot, p){
+  const img = new Image();
+  img.className = "ico"; img.alt = "";
+  let done = false;
+  const fail = () => { if (done) return; done = true; slot.replaceWith(fbBadge(p)); };
+  const ok = () => { if (done) return; done = true; slot.replaceWith(img); };
+  const timer = setTimeout(fail, 3000);
+  img.onload = () => { clearTimeout(timer); (img.naturalWidth > 0 ? ok : fail)(); };
+  img.onerror = () => { clearTimeout(timer); fail(); };
+  img.src = `https://icons.duckduckgo.com/ip3/${p.domain}.ico`;
+}
+
 // 카테고리별 섹션 + 카드 골격 생성
 const cats = [...new Set(PATIENTS.map(p => p.cat))];
 for (const cat of cats){
@@ -127,13 +157,17 @@ for (const cat of cats){
     c.className = "card";
     c.innerHTML = `
       <div class="row">
-        <span class="name">${p.name}</span>
+        <span class="ident">
+          <span class="ico-slot"></span>
+          <span class="name">${p.name}</span>
+        </span>
         <span class="dot skeleton" style="background:var(--gray)"></span>
       </div>
       <span class="cond skeleton">진단 중...</span>
       <div class="desc"></div>`;
     g.appendChild(c);
     cards[p.host] = c;
+    loadIcon(c.querySelector(".ico-slot"), p);
   }
 }
 
@@ -145,6 +179,21 @@ async function diagnose(p){
       const r = await fetch(`https://${p.host}/summary.json`, {cache:"no-store"});
       const j = await r.json();
       ind = INSTATUS_MAP[(j.page && j.page.status) || ""] || "unknown";
+    } else if (p.type === "gcp"){
+      // Google Cloud: 종료되지 않은(end 없음) 인시던트 중 해당 제품 영향분만
+      const r = await fetch(`https://${p.host}/incidents.json`, {cache:"no-store"});
+      const list = await r.json();
+      const ongoing = list.filter(i => !i.end).filter(i => {
+        const txt = (i.external_desc || "") + " " +
+          (i.affected_products || []).map(x => x.title).join(" ");
+        return p.match.test(txt);
+      });
+      if (ongoing.length === 0){ ind = "none"; }
+      else {
+        const worst = ongoing.some(i => i.status_impact === "SERVICE_OUTAGE");
+        ind = worst ? "critical" : "major";
+        description = ongoing[0].external_desc || "";
+      }
     } else {
       const r = await fetch(`https://${p.host}/api/v2/status.json`, {cache:"no-store"});
       const j = await r.json();
