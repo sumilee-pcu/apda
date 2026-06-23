@@ -3,82 +3,143 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>아프냐 나도아프다 — AI 서비스 컨디션</title>
+<title>아프냐 나도아프다 — 조선 의원 회진부</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Brush+Script&family=Song+Myung&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0f1115; --card:#171a21; --line:#262b35; --muted:#8b93a3; --text:#e7eaf0;
-    --green:#27c093; --amber:#e6a817; --coral:#e4663b; --red:#e2484a; --blue:#3b8add; --gray:#5f6573;
+    --hanji:#f1e7cf; --hanji2:#efe3c8; --hanji-line:#c9b48a; --ink:#2b2622; --ink2:#6b5a3e;
+    --pyeong:#3a7d5d; --mire:#c89a3a; --momsal:#c0622b; --wijung:#b5384a; --yoyang:#2e5e8c; --maek:#8a7f6a;
+    --ju:#9c2f3f;
   }
   *{box-sizing:border-box}
-  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",sans-serif;
-    background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
-  .wrap{max-width:980px;margin:0 auto;padding:40px 20px 80px}
-  header{text-align:center;margin-bottom:8px}
-  h1{font-size:30px;font-weight:700;margin:0 0 6px;letter-spacing:-.02em}
-  .sub{color:var(--muted);font-size:14px;margin:0}
-  .ward{display:flex;align-items:center;justify-content:center;gap:14px;margin:28px 0 8px;
-    padding:18px;background:var(--card);border:1px solid var(--line);border-radius:16px}
-  .ward .big{font-size:18px;font-weight:600}
-  .ward .pulse{width:12px;height:12px;border-radius:50%;animation:pulse 1.6s infinite}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
-  .legend{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin:0 0 28px;font-size:12px;color:var(--muted)}
-  .legend span{display:inline-flex;align-items:center;gap:6px}
-  .legend i{width:9px;height:9px;border-radius:50%}
-  .cat{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;
-    margin:26px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--line)}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;
-    display:flex;flex-direction:column;gap:8px;transition:border-color .2s}
-  .card:hover{border-color:#3a4250}
-  .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
-  .ident{display:flex;align-items:center;gap:10px;min-width:0}
-  .ico-slot{width:26px;height:26px;border-radius:7px;flex:none;background:#222733}
-  .ico{width:26px;height:26px;border-radius:7px;flex:none;object-fit:contain;background:#222733}
-  .ico-fb{width:26px;height:26px;border-radius:7px;flex:none;display:flex;align-items:center;
-    justify-content:center;font-size:13px;font-weight:700;color:#0f1115}
-  .name{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .dot{width:10px;height:10px;border-radius:50%;flex:none}
-  .cond{font-size:13px;font-weight:600}
-  .desc{font-size:12px;color:var(--muted);line-height:1.5;min-height:1.5em}
-  .foot{text-align:center;color:var(--muted);font-size:12px;margin-top:34px;line-height:1.8}
-  a{color:var(--blue);text-decoration:none}
-  .skeleton{color:var(--gray)}
+  body{margin:0;background:var(--hanji);color:var(--ink);
+    font-family:'Song Myung',serif;-webkit-font-smoothing:antialiased}
+  .brush{font-family:'Nanum Brush Script',cursive}
+  .wrap{max-width:980px;margin:0 auto;padding:24px 18px 80px}
+
+  .hero{position:relative;border-radius:16px;overflow:hidden;border:1px solid #3a3320;background:#161d33}
+  .narration{margin:16px 0 8px;padding:14px 18px;background:var(--hanji2);
+    border:1px solid var(--hanji-line);border-radius:10px;font-size:16px;line-height:1.7}
+  .narration b{color:var(--ju)}
+
+  .controls{display:flex;justify-content:flex-end;margin:0 0 18px}
+  .btn{font-family:'Song Myung',serif;font-size:14px;color:var(--ink);background:var(--hanji2);
+    border:1px solid var(--hanji-line);border-radius:9px;padding:8px 14px;cursor:pointer}
+  .btn:hover{background:#e8d9b6}
+
+  .picker{display:none;background:var(--hanji2);border:1px solid var(--hanji-line);
+    border-radius:12px;padding:16px 18px;margin:0 0 22px}
+  .picker.open{display:block}
+  .picker h3{margin:0 0 4px;font-size:16px}
+  .picker p{margin:0 0 14px;font-size:13px;color:var(--ink2)}
+  .pick-cat{font-size:13px;color:var(--ju);margin:14px 0 8px;letter-spacing:.04em}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{display:inline-flex;align-items:center;gap:7px;font-family:'Song Myung',serif;font-size:14px;
+    color:var(--ink);background:#fbf5e6;border:1px solid var(--hanji-line);border-radius:20px;
+    padding:5px 12px 5px 8px;cursor:pointer}
+  .chip.on{background:var(--ink);color:var(--hanji);border-color:var(--ink)}
+  .chip .ico,.chip .ico-fb{width:18px;height:18px;border-radius:5px}
+
+  .sec-title{font-size:17px;color:var(--ju);margin:22px 0 12px;letter-spacing:.04em;
+    border-bottom:1px solid var(--hanji-line);padding-bottom:7px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+  .card{position:relative;background:var(--hanji2);border:1px solid var(--hanji-line);
+    border-left:4px solid var(--maek);border-radius:10px;padding:13px 15px}
+  .card .top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .ident{display:flex;align-items:center;gap:9px;min-width:0}
+  .ico-slot,.ico,.ico-fb{width:24px;height:24px;border-radius:6px;flex:none}
+  .ico{object-fit:contain;background:#fff}
+  .ico-slot{background:#e3d4ad}
+  .ico-fb{display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;font-family:'Song Myung',serif}
+  .pname{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pill{font-size:12px;padding:2px 9px;border-radius:8px;white-space:nowrap;color:#f3ead6}
+  .symptom{font-size:12px;color:var(--ink2);margin-top:7px;line-height:1.5;min-height:1.4em}
+  .mine-tag{position:absolute;top:-8px;right:10px;font-size:11px;background:var(--ju);color:#f3ead6;
+    padding:1px 8px;border-radius:7px}
+  .card.mine{border-left-color:var(--ju)}
+
+  .calm{padding:16px 18px;background:#e7ecdf;border:1px solid #b9c6a6;border-radius:10px;
+    color:#3a4a2e;font-size:15px;line-height:1.7}
+  .healthy-bar{margin-top:14px;padding:13px 16px;background:#e7ecdf;border:1px solid #b9c6a6;
+    border-radius:10px;color:#3a4a2e;font-size:14px;cursor:pointer}
+  .healthy-bar b{color:#2f5d43}
+  .healthy-list{display:none;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .healthy-list.open{display:flex}
+  .h-chip{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink2);
+    background:#eef2e6;border:1px solid #c3cfb1;border-radius:18px;padding:4px 11px 4px 7px}
+  .h-chip .ico,.h-chip .ico-fb{width:16px;height:16px;border-radius:4px}
+
+  .foot{text-align:center;color:var(--ink2);font-size:12px;margin-top:34px;line-height:1.9}
+  .foot a{color:var(--yoyang)}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <h1>아프냐 나도아프다</h1>
-    <p class="sub">내가 의존하는 AI들의 컨디션을 한눈에. 쟤가 아프면 내 작업도 멈춘다.</p>
-  </header>
 
-  <div class="ward" id="ward">
-    <span class="pulse" style="background:var(--gray)"></span>
-    <span class="big" id="ward-text">병동 회진 중...</span>
+  <div class="hero">
+    <svg viewBox="0 0 940 240" width="100%" preserveAspectRatio="xMidYMid slice" role="img"
+         aria-label="달밤, 조선 의원 앞에 선 의관과 의녀">
+      <rect width="940" height="240" fill="#161d33"/>
+      <circle cx="788" cy="60" r="34" fill="#f3ead6"/>
+      <circle cx="776" cy="53" r="34" fill="#161d33"/>
+      <g fill="#e9dcc0" opacity="0.7">
+        <circle cx="160" cy="44" r="1.7"/><circle cx="300" cy="30" r="1.3"/><circle cx="440" cy="56" r="1.5"/>
+        <circle cx="600" cy="36" r="1.2"/><circle cx="80" cy="86" r="1.3"/><circle cx="880" cy="120" r="1.4"/>
+        <circle cx="520" cy="24" r="1.1"/><circle cx="700" cy="92" r="1.2"/>
+      </g>
+      <rect x="0" y="182" width="940" height="58" fill="#0f1426"/>
+      <polygon points="60,182 320,182 296,146 84,146" fill="#2a2018"/>
+      <polygon points="70,147 310,147 298,134 82,134" fill="#7a2b22"/>
+      <rect x="120" y="150" width="11" height="32" fill="#1c1510"/>
+      <rect x="249" y="150" width="11" height="32" fill="#1c1510"/>
+      <rect x="158" y="152" width="64" height="30" fill="#caa24a"/>
+      <text x="190" y="174" text-anchor="middle" font-size="18" fill="#3a2a12" font-family="'Song Myung',serif">醫院</text>
+      <g>
+        <ellipse cx="486" cy="226" rx="26" ry="6" fill="#0b0f1c"/>
+        <rect x="470" y="146" width="32" height="72" rx="12" fill="#2e5e8c"/>
+        <rect x="470" y="146" width="32" height="16" fill="#27507a"/>
+        <circle cx="486" cy="132" r="13" fill="#f0c9a8"/>
+        <rect x="472" y="118" width="28" height="8" rx="3" fill="#15110a"/>
+        <rect x="481" y="106" width="10" height="14" rx="3" fill="#15110a"/>
+      </g>
+      <g>
+        <ellipse cx="538" cy="226" rx="26" ry="6" fill="#0b0f1c"/>
+        <rect x="522" y="150" width="32" height="68" rx="12" fill="#b5384a"/>
+        <rect x="522" y="150" width="32" height="15" fill="#9c2f3f"/>
+        <circle cx="538" cy="136" r="12" fill="#f0c9a8"/>
+        <path d="M526 134 q12 -18 24 0 z" fill="#241a12"/>
+      </g>
+      <text x="34" y="74" class="brush" font-size="56" fill="#f3ead6">아프냐 나도아프다</text>
+      <text x="38" y="106" font-size="15" fill="#d9c79c" font-family="'Song Myung',serif">달밤, 의관과 의녀가 회진을 나서다 — AI 환자들의 맥을 짚다</text>
+    </svg>
   </div>
 
-  <div class="legend">
-    <span><i style="background:var(--green)"></i>건강함</span>
-    <span><i style="background:var(--amber)"></i>미열</span>
-    <span><i style="background:var(--coral)"></i>몸살</span>
-    <span><i style="background:var(--red)"></i>응급실</span>
-    <span><i style="background:var(--blue)"></i>정기검진</span>
-    <span><i style="background:var(--gray)"></i>무응답</span>
+  <div class="narration" id="narration">의녀가 회진을 준비하옵니다…</div>
+
+  <div class="controls">
+    <button class="btn" id="mine-btn">내 환자 정하기</button>
   </div>
 
-  <div id="board"></div>
+  <div class="picker" id="picker">
+    <h3>마마께서 돌보실 환자를 고르시옵소서</h3>
+    <p>고르신 환자가 아프면 의녀가 따로 아뢰겠나이다. (이 기기에만 저장됩니다)</p>
+    <div id="pick-body"></div>
+  </div>
+
+  <div id="ailing-wrap"></div>
+  <div id="healthy-wrap"></div>
 
   <p class="foot">
-    데이터: 각 서비스 공식 status 페이지(Statuspage / Instatus API). 60초마다 자동 회진.<br>
-    프로토타입 — 진단은 참고용입니다.
+    각 환자의 맥은 공식 진단소(Statuspage · Instatus · Google Cloud)에서 짚어 옵니다. 60초마다 회진.<br>
+    프로토타입 — 진단은 참고용이옵니다. · <a href="https://github.com/sumilee-pcu/apda">의서(코드)</a>
   </p>
 </div>
 
 <script>
-// 진료 대상. type: "statuspage"(/api/v2/status.json) | "instatus"(/summary.json) | "gcp"(Google Cloud)
-// domain: 로고 favicon 조회용 브랜드 도메인. match: GCP 인시던트 필터 키워드.
+// ── 환자 명부 ─────────────────────────────────────────────
 const PATIENTS = [
-  // 모델 · API
   { name: "OpenAI",      host: "status.openai.com",         type: "statuspage", cat: "모델 · API", domain: "openai.com" },
   { name: "Claude",      host: "status.claude.com",         type: "statuspage", cat: "모델 · API", domain: "claude.com" },
   { name: "Gemini",      host: "status.cloud.google.com",   type: "gcp",        cat: "모델 · API", domain: "gemini.google.com", match: /gemini|vertex ai|generative language|ai studio/i },
@@ -86,150 +147,191 @@ const PATIENTS = [
   { name: "Cohere",      host: "status.cohere.com",         type: "statuspage", cat: "모델 · API", domain: "cohere.com" },
   { name: "Groq",        host: "groqstatus.com",            type: "statuspage", cat: "모델 · API", domain: "groq.com" },
   { name: "Replicate",   host: "www.replicatestatus.com",   type: "statuspage", cat: "모델 · API", domain: "replicate.com" },
-  // 음성 · 미디어
   { name: "ElevenLabs",  host: "status.elevenlabs.io",      type: "statuspage", cat: "음성 · 미디어", domain: "elevenlabs.io" },
   { name: "Stability AI",host: "status.stability.ai",       type: "statuspage", cat: "음성 · 미디어", domain: "stability.ai" },
   { name: "Runway",      host: "status.runwayml.com",       type: "statuspage", cat: "음성 · 미디어", domain: "runwayml.com" },
-  // 코딩 도구
   { name: "Cursor",      host: "status.cursor.com",         type: "statuspage", cat: "코딩 도구", domain: "cursor.com" },
   { name: "Windsurf",    host: "status.windsurf.com",       type: "statuspage", cat: "코딩 도구", domain: "windsurf.com" },
   { name: "Lovable",     host: "status.lovable.dev",        type: "statuspage", cat: "코딩 도구", domain: "lovable.dev" },
   { name: "v0",          host: "v0-status.com",             type: "statuspage", cat: "코딩 도구", domain: "v0.dev" },
   { name: "GitHub",      host: "www.githubstatus.com",      type: "statuspage", cat: "코딩 도구", domain: "github.com" },
-  // 인프라
   { name: "Pinecone",    host: "status.pinecone.io",        type: "statuspage", cat: "인프라", domain: "pinecone.io" },
   { name: "LangSmith",   host: "status.smith.langchain.com",type: "statuspage", cat: "인프라", domain: "langchain.com" },
   { name: "Supabase",    host: "status.supabase.com",       type: "statuspage", cat: "인프라", domain: "supabase.com" },
   { name: "Vercel",      host: "www.vercel-status.com",     type: "statuspage", cat: "인프라", domain: "vercel.com" },
 ];
+const BY_HOST = Object.fromEntries(PATIENTS.map(p => [p.host, p]));
 
-const CONDITION = {
-  none:        { label: "건강함",   color: "var(--green)", desc: "정상 진료 중" },
-  minor:       { label: "미열",     color: "var(--amber)", desc: "경미한 이상" },
-  major:       { label: "몸살",     color: "var(--coral)", desc: "주요 기능 저하" },
-  critical:    { label: "응급실",   color: "var(--red)",   desc: "심각한 장애" },
-  maintenance: { label: "정기검진", color: "var(--blue)",  desc: "점검 중" },
-  unknown:     { label: "무응답",   color: "var(--gray)",  desc: "상태 확인 불가" },
+// ── 한방 컨디션 ───────────────────────────────────────────
+const COND = {
+  none:        { label:"평안 平安", rank:0, color:"var(--pyeong)", desc:"맥이 고르옵니다" },
+  minor:       { label:"미열 微熱", rank:3, color:"var(--mire)",   desc:"미열이 있사옵니다" },
+  major:       { label:"몸살 身",   rank:4, color:"var(--momsal)", desc:"몸살을 앓고 있사옵니다" },
+  critical:    { label:"위중 危重", rank:5, color:"var(--wijung)", desc:"위중하옵니다" },
+  maintenance: { label:"요양 療養", rank:2, color:"var(--yoyang)", desc:"침을 맞으며 요양 중이옵니다" },
+  unknown:     { label:"맥 끊김",   rank:1, color:"var(--maek)",   desc:"맥이 잡히지 않사옵니다" },
 };
+const ALARM = new Set(["minor","major","critical"]); // 의녀가 아뢰는 '앓는' 상태
+const INSTATUS_MAP = { UP:"none", HASISSUES:"major", UNDERMAINTENANCE:"maintenance",
+  DEGRADEDPERFORMANCE:"minor", PARTIALOUTAGE:"major", MINOROUTAGE:"minor", MAJOROUTAGE:"critical" };
 
-// Instatus page.status -> indicator
-const INSTATUS_MAP = {
-  UP: "none", HASISSUES: "major", UNDERMAINTENANCE: "maintenance",
-  DEGRADEDPERFORMANCE: "minor", PARTIALOUTAGE: "major", MINOROUTAGE: "minor",
-  MAJOROUTAGE: "critical",
-};
+// ── 개인화: 내 환자 (localStorage) ────────────────────────
+const SKEY = "apda_patients";
+let mine = new Set(JSON.parse(localStorage.getItem(SKEY) || "[]").filter(h => BY_HOST[h]));
+const saveMine = () => localStorage.setItem(SKEY, JSON.stringify([...mine]));
 
-const board = document.getElementById("board");
-const cards = {};
-
-// 글자 배지 폴백 색상 (이름 해시 기반)
-const FB_COLORS = ["#3b8add","#27c093","#e4663b","#9b7be0","#e6a817","#d4537e"];
-function fbBadge(p){
-  const span = document.createElement("span");
-  span.className = "ico-fb";
-  let h = 0; for (const ch of p.name) h = (h*31 + ch.charCodeAt(0)) % FB_COLORS.length;
-  span.style.background = FB_COLORS[h];
-  span.textContent = p.name[0];
-  return span;
-}
-// DuckDuckGo 파비콘 우선, 3초 내 실패/지연 시 글자 배지로 폴백
-function loadIcon(slot, p){
-  const img = new Image();
-  img.className = "ico"; img.alt = "";
-  let done = false;
-  const fail = () => { if (done) return; done = true; slot.replaceWith(fbBadge(p)); };
-  const ok = () => { if (done) return; done = true; slot.replaceWith(img); };
-  const timer = setTimeout(fail, 3000);
-  img.onload = () => { clearTimeout(timer); (img.naturalWidth > 0 ? ok : fail)(); };
-  img.onerror = () => { clearTimeout(timer); fail(); };
-  img.src = `https://icons.duckduckgo.com/ip3/${p.domain}.ico`;
+// ── 로고 (DDG 파비콘 + 폴백) ──────────────────────────────
+const FB = ["#2e5e8c","#3a7d5d","#c0622b","#9c2f3f","#c89a3a","#5e7048"];
+function fbColor(p){ let h=0; for(const c of p.name) h=(h*31+c.charCodeAt(0))%FB.length; return FB[h]; }
+function makeIcon(p, cls){
+  const slot = document.createElement("span");
+  slot.className = (cls||"ico-slot");
+  const img = new Image(); img.className = (cls? cls+" ico":"ico"); img.alt="";
+  let done=false;
+  const fail=()=>{ if(done)return; done=true; const s=document.createElement("span");
+    s.className=(cls? cls+" ico-fb":"ico-fb"); s.style.background=fbColor(p); s.textContent=p.name[0];
+    slot.replaceWith(s); };
+  const ok=()=>{ if(done)return; done=true; slot.replaceWith(img); };
+  const t=setTimeout(fail,3000);
+  img.onload=()=>{ clearTimeout(t); (img.naturalWidth>0?ok:fail)(); };
+  img.onerror=()=>{ clearTimeout(t); fail(); };
+  img.src=`https://icons.duckduckgo.com/ip3/${p.domain}.ico`;
+  return slot;
 }
 
-// 카테고리별 섹션 + 카드 골격 생성
-const cats = [...new Set(PATIENTS.map(p => p.cat))];
-for (const cat of cats){
-  const h = document.createElement("div"); h.className = "cat"; h.textContent = cat;
-  board.appendChild(h);
-  const g = document.createElement("div"); g.className = "grid";
-  board.appendChild(g);
-  for (const p of PATIENTS.filter(x => x.cat === cat)){
-    const c = document.createElement("div");
-    c.className = "card";
-    c.innerHTML = `
-      <div class="row">
-        <span class="ident">
-          <span class="ico-slot"></span>
-          <span class="name">${p.name}</span>
-        </span>
-        <span class="dot skeleton" style="background:var(--gray)"></span>
-      </div>
-      <span class="cond skeleton">진단 중...</span>
-      <div class="desc"></div>`;
-    g.appendChild(c);
-    cards[p.host] = c;
-    loadIcon(c.querySelector(".ico-slot"), p);
-  }
-}
-
+// ── 진단 (맥 짚기) ────────────────────────────────────────
+const state = {}; // host -> { ind, desc }
 async function diagnose(p){
-  const card = cards[p.host];
-  let ind = "unknown", description = "";
+  let ind="unknown", desc="";
   try{
-    if (p.type === "instatus"){
-      const r = await fetch(`https://${p.host}/summary.json`, {cache:"no-store"});
-      const j = await r.json();
-      ind = INSTATUS_MAP[(j.page && j.page.status) || ""] || "unknown";
-    } else if (p.type === "gcp"){
-      // Google Cloud: 종료되지 않은(end 없음) 인시던트 중 해당 제품 영향분만
-      const r = await fetch(`https://${p.host}/incidents.json`, {cache:"no-store"});
-      const list = await r.json();
-      const ongoing = list.filter(i => !i.end).filter(i => {
-        const txt = (i.external_desc || "") + " " +
-          (i.affected_products || []).map(x => x.title).join(" ");
-        return p.match.test(txt);
+    if(p.type==="instatus"){
+      const j = await (await fetch(`https://${p.host}/summary.json`,{cache:"no-store"})).json();
+      ind = INSTATUS_MAP[(j.page&&j.page.status)||""] || "unknown";
+    } else if(p.type==="gcp"){
+      const list = await (await fetch(`https://${p.host}/incidents.json`,{cache:"no-store"})).json();
+      const on = list.filter(i=>!i.end).filter(i=>{
+        const t=(i.external_desc||"")+" "+(i.affected_products||[]).map(x=>x.title).join(" ");
+        return p.match.test(t);
       });
-      if (ongoing.length === 0){ ind = "none"; }
-      else {
-        const worst = ongoing.some(i => i.status_impact === "SERVICE_OUTAGE");
-        ind = worst ? "critical" : "major";
-        description = ongoing[0].external_desc || "";
-      }
+      if(on.length===0){ ind="none"; }
+      else { ind = on.some(i=>i.status_impact==="SERVICE_OUTAGE")?"critical":"major"; desc=on[0].external_desc||""; }
     } else {
-      const r = await fetch(`https://${p.host}/api/v2/status.json`, {cache:"no-store"});
-      const j = await r.json();
-      ind = j.status.indicator || "none";
-      description = j.status.description || "";
+      const j = await (await fetch(`https://${p.host}/api/v2/status.json`,{cache:"no-store"})).json();
+      ind = j.status.indicator || "none"; desc = j.status.description || "";
     }
-  }catch(e){ ind = "unknown"; }
-
-  const cond = CONDITION[ind] || CONDITION.unknown;
-  const dot = card.querySelector(".dot");
-  dot.style.background = cond.color; dot.classList.remove("skeleton");
-  const condEl = card.querySelector(".cond");
-  condEl.textContent = cond.label; condEl.style.color = cond.color; condEl.classList.remove("skeleton");
-  card.querySelector(".desc").textContent = description || cond.desc;
-  return ind;
+  }catch(e){ ind="unknown"; }
+  state[p.host] = { ind, desc };
 }
 
-async function rounds(){
-  const results = await Promise.all(PATIENTS.map(diagnose));
-  const sick = results.filter(i => i && !["none","unknown"].includes(i)).length;
-  const unknown = results.filter(i => i === "unknown").length;
-  const ward = document.getElementById("ward");
-  const text = document.getElementById("ward-text");
-  const pulse = ward.querySelector(".pulse");
-  if (sick === 0 && unknown === 0){
-    text.textContent = "전원 건강. 오늘은 다 같이 무사합니다.";
-    pulse.style.background = "var(--green)";
-  } else if (sick > 0){
-    text.textContent = `${sick}곳이 아픕니다. 그쪽 작업은 잠시 쉬어가세요.`;
-    pulse.style.background = "var(--red)";
+// ── 그리기 ────────────────────────────────────────────────
+function patientCard(p){
+  const { ind, desc } = state[p.host] || { ind:"unknown", desc:"" };
+  const c = COND[ind] || COND.unknown;
+  const isMine = mine.has(p.host);
+  const card = document.createElement("div");
+  card.className = "card" + (isMine ? " mine" : "");
+  card.style.borderLeftColor = c.color;
+  card.innerHTML = `
+    ${isMine ? '<span class="mine-tag">마마의 환자</span>' : ''}
+    <div class="top">
+      <span class="ident"><span class="ico-slot"></span><span class="pname">${p.name}</span></span>
+      <span class="pill" style="background:${c.color}">${c.label}</span>
+    </div>
+    <div class="symptom">증상: ${desc || c.desc}</div>`;
+  card.querySelector(".ico-slot").replaceWith(makeIcon(p));
+  return card;
+}
+
+function names(list){
+  const ns = list.map(p=>p.name);
+  if(ns.length<=3) return ns.join(", ");
+  return ns.slice(0,3).join(", ") + ` 외 ${ns.length-3}`;
+}
+
+function render(){
+  const ranked = PATIENTS.map(p=>({p, c:COND[(state[p.host]||{}).ind||"unknown"]}));
+  const ailing  = ranked.filter(x=>x.c.rank>=1)
+    .sort((a,b)=> (mine.has(b.p.host)-mine.has(a.p.host)) || (b.c.rank-a.c.rank));
+  const healthy = ranked.filter(x=>x.c.rank===0).map(x=>x.p);
+
+  // 의녀 내레이션
+  const alarmAll = PATIENTS.filter(p=>ALARM.has((state[p.host]||{}).ind));
+  const myAlarm  = alarmAll.filter(p=>mine.has(p.host));
+  const nar = document.getElementById("narration");
+  if(mine.size>0){
+    nar.innerHTML = myAlarm.length>0
+      ? `의녀 왈, 「오늘 <b>${names(myAlarm)}</b> 의 맥이 흐트러졌사옵니다. 살펴 주시옵소서.」`
+      : `의녀 왈, 「마마의 환자 <b>${mine.size}</b>명, 오늘은 모두 평안하옵니다.」`;
   } else {
-    text.textContent = `${unknown}곳 응답 없음. 상태 확인이 어렵습니다.`;
-    pulse.style.background = "var(--gray)";
+    nar.innerHTML = alarmAll.length>0
+      ? `의녀 왈, 「의원에 <b>${alarmAll.length}</b>명이 앓고 있사옵니다. ‘내 환자 정하기’로 돌보실 이를 정하시옵소서.」`
+      : `의녀 왈, 「의원의 모든 환자가 평안하옵니다.」`;
+  }
+
+  // 지금 살펴야 할 환자
+  const aw = document.getElementById("ailing-wrap"); aw.innerHTML="";
+  const at = document.createElement("div"); at.className="sec-title";
+  at.textContent = ailing.length>0 ? "지금 살펴야 할 환자" : "오늘의 회진";
+  aw.appendChild(at);
+  if(ailing.length>0){
+    const g=document.createElement("div"); g.className="grid";
+    ailing.forEach(x=> g.appendChild(patientCard(x.p)));
+    aw.appendChild(g);
+  } else {
+    const calm=document.createElement("div"); calm.className="calm";
+    calm.textContent = "앓는 환자가 한 명도 없사옵니다. 의관과 의녀, 오늘은 한시름 놓사옵니다.";
+    aw.appendChild(calm);
+  }
+
+  // 평안한 환자 (접기)
+  const hw=document.getElementById("healthy-wrap"); hw.innerHTML="";
+  if(healthy.length>0){
+    const bar=document.createElement("div"); bar.className="healthy-bar";
+    bar.innerHTML = `평안한 환자 <b>${healthy.length}</b>명 — 모두 맥이 고르옵니다. <span style="color:#5e7048">[ 펼쳐 보기 ]</span>`;
+    const list=document.createElement("div"); list.className="healthy-list";
+    healthy.forEach(p=>{
+      const ch=document.createElement("span"); ch.className="h-chip";
+      ch.appendChild(makeIcon(p,"h-ico"));
+      const nm=document.createElement("span"); nm.textContent = p.name + (mine.has(p.host)?" · 마마의 환자":"");
+      ch.appendChild(nm); list.appendChild(ch);
+    });
+    bar.onclick = ()=> list.classList.toggle("open");
+    hw.appendChild(bar); hw.appendChild(list);
   }
 }
 
+// ── 환자 고르기 패널 ─────────────────────────────────────
+function buildPicker(){
+  const body=document.getElementById("pick-body"); body.innerHTML="";
+  [...new Set(PATIENTS.map(p=>p.cat))].forEach(cat=>{
+    const h=document.createElement("div"); h.className="pick-cat"; h.textContent=cat; body.appendChild(h);
+    const wrap=document.createElement("div"); wrap.className="chips";
+    PATIENTS.filter(p=>p.cat===cat).forEach(p=>{
+      const chip=document.createElement("span");
+      chip.className="chip"+(mine.has(p.host)?" on":"");
+      chip.appendChild(makeIcon(p));
+      const nm=document.createElement("span"); nm.textContent=p.name; chip.appendChild(nm);
+      chip.onclick=()=>{
+        mine.has(p.host)?mine.delete(p.host):mine.add(p.host);
+        saveMine(); chip.classList.toggle("on"); render();
+      };
+      wrap.appendChild(chip);
+    });
+    body.appendChild(wrap);
+  });
+}
+document.getElementById("mine-btn").onclick=()=>{
+  const pk=document.getElementById("picker");
+  pk.classList.toggle("open");
+  if(pk.classList.contains("open")) buildPicker();
+};
+
+// ── 회진 ─────────────────────────────────────────────────
+async function rounds(){
+  await Promise.all(PATIENTS.map(diagnose));
+  render();
+}
+render();   // 골격 먼저
 rounds();
 setInterval(rounds, 60000);
 </script>
