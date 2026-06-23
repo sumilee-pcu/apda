@@ -44,7 +44,7 @@
 
   .sec-title{font-size:17px;color:var(--ju);margin:22px 0 12px;letter-spacing:.04em;
     border-bottom:1px solid var(--hanji-line);padding-bottom:7px}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
   .card{position:relative;background:var(--hanji2);border:1px solid var(--hanji-line);
     border-left:4px solid var(--maek);border-radius:10px;padding:13px 15px}
   .card .top{display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -55,7 +55,12 @@
   .ico-fb{display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;font-family:'Song Myung',serif}
   .pname{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .pill{font-size:12px;padding:2px 9px;border-radius:8px;white-space:nowrap;color:#f3ead6}
-  .symptom{font-size:12px;color:var(--ink2);margin-top:7px;line-height:1.5;min-height:1.4em}
+  .symptom{font-size:12px;color:var(--ink2);margin-top:7px;line-height:1.5}
+  .parts{margin-top:9px;display:flex;flex-direction:column;gap:5px}
+  .part{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;color:var(--ink)}
+  .part .pleft{display:flex;align-items:center;gap:6px;min-width:0}
+  .part .mymark{font-size:10px;background:var(--ju);color:#f3ead6;padding:0 6px;border-radius:6px}
+  .ppill{font-size:11px;padding:1px 8px;border-radius:7px;color:#f3ead6;white-space:nowrap}
   .mine-tag{position:absolute;top:-8px;right:10px;font-size:11px;background:var(--ju);color:#f3ead6;
     padding:1px 8px;border-radius:7px}
   .card.mine{border-left-color:var(--ju)}
@@ -123,8 +128,8 @@
   </div>
 
   <div class="picker" id="picker">
-    <h3>마마께서 돌보실 환자를 고르시옵소서</h3>
-    <p>고르신 환자가 아프면 의녀가 따로 아뢰겠나이다. (이 기기에만 저장됩니다)</p>
+    <h3>마마께서 돌보실 환자(진료 부위)를 고르시옵소서</h3>
+    <p>고르신 부위가 아프면 의녀가 따로 아뢰겠나이다. 여러 부위가 있는 의원은 부위별로 짚어 올립니다. (이 기기에만 저장됩니다)</p>
     <div id="pick-body"></div>
   </div>
 
@@ -138,29 +143,42 @@
 </div>
 
 <script>
-// ── 환자 명부 ─────────────────────────────────────────────
+// ── 환자 명부 (parts = 큐레이션된 진료 부위) ───────────────
 const PATIENTS = [
-  { name: "OpenAI",      host: "status.openai.com",         type: "statuspage", cat: "모델 · API", domain: "openai.com" },
-  { name: "Claude",      host: "status.claude.com",         type: "statuspage", cat: "모델 · API", domain: "claude.com" },
-  { name: "Gemini",      host: "status.cloud.google.com",   type: "gcp",        cat: "모델 · API", domain: "gemini.google.com", match: /gemini|vertex ai|generative language|ai studio/i },
-  { name: "Perplexity",  host: "status.perplexity.com",     type: "instatus",   cat: "모델 · API", domain: "perplexity.ai" },
-  { name: "Cohere",      host: "status.cohere.com",         type: "statuspage", cat: "모델 · API", domain: "cohere.com" },
-  { name: "Groq",        host: "groqstatus.com",            type: "statuspage", cat: "모델 · API", domain: "groq.com" },
-  { name: "Replicate",   host: "www.replicatestatus.com",   type: "statuspage", cat: "모델 · API", domain: "replicate.com" },
-  { name: "ElevenLabs",  host: "status.elevenlabs.io",      type: "statuspage", cat: "음성 · 미디어", domain: "elevenlabs.io" },
-  { name: "Stability AI",host: "status.stability.ai",       type: "statuspage", cat: "음성 · 미디어", domain: "stability.ai" },
-  { name: "Runway",      host: "status.runwayml.com",       type: "statuspage", cat: "음성 · 미디어", domain: "runwayml.com" },
-  { name: "Cursor",      host: "status.cursor.com",         type: "statuspage", cat: "코딩 도구", domain: "cursor.com" },
-  { name: "Windsurf",    host: "status.windsurf.com",       type: "statuspage", cat: "코딩 도구", domain: "windsurf.com" },
-  { name: "Lovable",     host: "status.lovable.dev",        type: "statuspage", cat: "코딩 도구", domain: "lovable.dev" },
-  { name: "v0",          host: "v0-status.com",             type: "statuspage", cat: "코딩 도구", domain: "v0.dev" },
-  { name: "GitHub",      host: "www.githubstatus.com",      type: "statuspage", cat: "코딩 도구", domain: "github.com" },
-  { name: "Pinecone",    host: "status.pinecone.io",        type: "statuspage", cat: "인프라", domain: "pinecone.io" },
-  { name: "LangSmith",   host: "status.smith.langchain.com",type: "statuspage", cat: "인프라", domain: "langchain.com" },
-  { name: "Supabase",    host: "status.supabase.com",       type: "statuspage", cat: "인프라", domain: "supabase.com" },
-  { name: "Vercel",      host: "www.vercel-status.com",     type: "statuspage", cat: "인프라", domain: "vercel.com" },
+  { name:"OpenAI", host:"status.openai.com", type:"statuspage", cat:"모델 · API", domain:"openai.com",
+    parts:[ {key:"chatgpt",label:"ChatGPT",match:/^Conversations$/},
+            {key:"api",label:"OpenAI API",match:/^Responses$/},
+            {key:"codex",label:"OpenAI Codex",match:/^Codex Web$/},
+            {key:"sora",label:"Sora",match:/^Sora$/} ] },
+  { name:"Claude", host:"status.claude.com", type:"statuspage", cat:"모델 · API", domain:"claude.com",
+    parts:[ {key:"web",label:"claude.ai (채팅)",match:/^claude\.ai$/},
+            {key:"api",label:"Claude API",match:/Claude API/},
+            {key:"code",label:"Claude Code",match:/^Claude Code$/},
+            {key:"cowork",label:"Claude Cowork",match:/Claude Cowork/} ] },
+  { name:"Gemini", host:"status.cloud.google.com", type:"gcp", cat:"모델 · API", domain:"gemini.google.com", match:/gemini|vertex ai|generative language|ai studio/i },
+  { name:"Perplexity", host:"status.perplexity.com", type:"instatus", cat:"모델 · API", domain:"perplexity.ai" },
+  { name:"Cohere", host:"status.cohere.com", type:"statuspage", cat:"모델 · API", domain:"cohere.com" },
+  { name:"Groq", host:"groqstatus.com", type:"statuspage", cat:"모델 · API", domain:"groq.com" },
+  { name:"Replicate", host:"www.replicatestatus.com", type:"statuspage", cat:"모델 · API", domain:"replicate.com" },
+  { name:"ElevenLabs", host:"status.elevenlabs.io", type:"statuspage", cat:"음성 · 미디어", domain:"elevenlabs.io" },
+  { name:"Stability AI", host:"status.stability.ai", type:"statuspage", cat:"음성 · 미디어", domain:"stability.ai" },
+  { name:"Runway", host:"status.runwayml.com", type:"statuspage", cat:"음성 · 미디어", domain:"runwayml.com" },
+  { name:"Cursor", host:"status.cursor.com", type:"statuspage", cat:"코딩 도구", domain:"cursor.com",
+    parts:[ {key:"ide",label:"Cursor IDE",match:/^IDE$/},
+            {key:"cli",label:"Cursor CLI",match:/^CLI$/},
+            {key:"agents",label:"Cursor Cloud Agents",match:/Cloud Agents/} ] },
+  { name:"Windsurf", host:"status.windsurf.com", type:"statuspage", cat:"코딩 도구", domain:"windsurf.com" },
+  { name:"Lovable", host:"status.lovable.dev", type:"statuspage", cat:"코딩 도구", domain:"lovable.dev" },
+  { name:"v0", host:"v0-status.com", type:"statuspage", cat:"코딩 도구", domain:"v0.dev" },
+  { name:"GitHub", host:"www.githubstatus.com", type:"statuspage", cat:"코딩 도구", domain:"github.com",
+    parts:[ {key:"copilot",label:"GitHub Copilot",match:/^Copilot$/},
+            {key:"actions",label:"GitHub Actions",match:/^Actions$/} ] },
+  { name:"Pinecone", host:"status.pinecone.io", type:"statuspage", cat:"인프라", domain:"pinecone.io" },
+  { name:"LangSmith", host:"status.smith.langchain.com", type:"statuspage", cat:"인프라", domain:"langchain.com" },
+  { name:"Supabase", host:"status.supabase.com", type:"statuspage", cat:"인프라", domain:"supabase.com" },
+  { name:"Vercel", host:"www.vercel-status.com", type:"statuspage", cat:"인프라", domain:"vercel.com" },
 ];
-const BY_HOST = Object.fromEntries(PATIENTS.map(p => [p.host, p]));
+const BY_HOST = Object.fromEntries(PATIENTS.map(p=>[p.host,p]));
 
 // ── 한방 컨디션 ───────────────────────────────────────────
 const COND = {
@@ -171,26 +189,28 @@ const COND = {
   maintenance: { label:"요양 療養", rank:2, color:"var(--yoyang)", desc:"침을 맞으며 요양 중이옵니다" },
   unknown:     { label:"맥 끊김",   rank:1, color:"var(--maek)",   desc:"맥이 잡히지 않사옵니다" },
 };
-const ALARM = new Set(["minor","major","critical"]); // 의녀가 아뢰는 '앓는' 상태
+const ALARM = new Set(["minor","major","critical"]);
 const INSTATUS_MAP = { UP:"none", HASISSUES:"major", UNDERMAINTENANCE:"maintenance",
   DEGRADEDPERFORMANCE:"minor", PARTIALOUTAGE:"major", MINOROUTAGE:"minor", MAJOROUTAGE:"critical" };
+const COMP_MAP = { operational:"none", degraded_performance:"minor", partial_outage:"major",
+  major_outage:"critical", under_maintenance:"maintenance" };
 
-// ── 개인화: 내 환자 (localStorage) ────────────────────────
+// ── 개인화: 내 환자/부위 (localStorage) ───────────────────
+// id = host (서비스 전체) 또는 host::partKey (특정 부위)
 const SKEY = "apda_patients";
-let mine = new Set(JSON.parse(localStorage.getItem(SKEY) || "[]").filter(h => BY_HOST[h]));
+let mine = new Set(JSON.parse(localStorage.getItem(SKEY) || "[]"));
 const saveMine = () => localStorage.setItem(SKEY, JSON.stringify([...mine]));
+const pid = (host,key) => host + "::" + key;
 
-// ── 로고 (DDG 파비콘 + 폴백) ──────────────────────────────
+// ── 로고 ─────────────────────────────────────────────────
 const FB = ["#2e5e8c","#3a7d5d","#c0622b","#9c2f3f","#c89a3a","#5e7048"];
 function fbColor(p){ let h=0; for(const c of p.name) h=(h*31+c.charCodeAt(0))%FB.length; return FB[h]; }
 function makeIcon(p, cls){
-  const slot = document.createElement("span");
-  slot.className = (cls||"ico-slot");
-  const img = new Image(); img.className = (cls? cls+" ico":"ico"); img.alt="";
+  const slot=document.createElement("span"); slot.className=(cls||"ico-slot");
+  const img=new Image(); img.className=(cls?cls+" ico":"ico"); img.alt="";
   let done=false;
   const fail=()=>{ if(done)return; done=true; const s=document.createElement("span");
-    s.className=(cls? cls+" ico-fb":"ico-fb"); s.style.background=fbColor(p); s.textContent=p.name[0];
-    slot.replaceWith(s); };
+    s.className=(cls?cls+" ico-fb":"ico-fb"); s.style.background=fbColor(p); s.textContent=p.name[0]; slot.replaceWith(s); };
   const ok=()=>{ if(done)return; done=true; slot.replaceWith(img); };
   const t=setTimeout(fail,3000);
   img.onload=()=>{ clearTimeout(t); (img.naturalWidth>0?ok:fail)(); };
@@ -200,138 +220,180 @@ function makeIcon(p, cls){
 }
 
 // ── 진단 (맥 짚기) ────────────────────────────────────────
-const state = {}; // host -> { ind, desc }
+const state = {}; // host -> { ind, desc, parts:[{key,label,ind}]|null }
 async function diagnose(p){
-  let ind="unknown", desc="";
+  let ind="unknown", desc="", parts=null;
   try{
     if(p.type==="instatus"){
-      const j = await (await fetch(`https://${p.host}/summary.json`,{cache:"no-store"})).json();
-      ind = INSTATUS_MAP[(j.page&&j.page.status)||""] || "unknown";
+      const j=await (await fetch(`https://${p.host}/summary.json`,{cache:"no-store"})).json();
+      ind=INSTATUS_MAP[(j.page&&j.page.status)||""]||"unknown";
     } else if(p.type==="gcp"){
-      const list = await (await fetch(`https://${p.host}/incidents.json`,{cache:"no-store"})).json();
-      const on = list.filter(i=>!i.end).filter(i=>{
+      const list=await (await fetch(`https://${p.host}/incidents.json`,{cache:"no-store"})).json();
+      const on=list.filter(i=>!i.end).filter(i=>{
         const t=(i.external_desc||"")+" "+(i.affected_products||[]).map(x=>x.title).join(" ");
         return p.match.test(t);
       });
       if(on.length===0){ ind="none"; }
-      else { ind = on.some(i=>i.status_impact==="SERVICE_OUTAGE")?"critical":"major"; desc=on[0].external_desc||""; }
+      else { ind=on.some(i=>i.status_impact==="SERVICE_OUTAGE")?"critical":"major"; desc=on[0].external_desc||""; }
     } else {
-      const j = await (await fetch(`https://${p.host}/api/v2/status.json`,{cache:"no-store"})).json();
-      ind = j.status.indicator || "none"; desc = j.status.description || "";
+      const j=await (await fetch(`https://${p.host}/api/v2/summary.json`,{cache:"no-store"})).json();
+      ind=j.status.indicator||"none"; desc=j.status.description||"";
+      if(p.parts){
+        parts=p.parts.map(pt=>{
+          const comp=(j.components||[]).find(c=>!c.group && pt.match.test(c.name));
+          return { key:pt.key, label:pt.label, ind: comp ? (COMP_MAP[comp.status]||"unknown") : "unknown" };
+        });
+      }
     }
   }catch(e){ ind="unknown"; }
-  state[p.host] = { ind, desc };
+  state[p.host]={ ind, desc, parts };
 }
 
-// ── 그리기 ────────────────────────────────────────────────
+// ── 개인화 헬퍼 ───────────────────────────────────────────
+function serviceIsMine(p){
+  if(mine.has(p.host)) return true;
+  const st=state[p.host];
+  if(st && st.parts) return st.parts.some(pt=>mine.has(pid(p.host,pt.key)));
+  return false;
+}
+// 내 환자 중 '앓고 있는' 부위/서비스의 표시명 목록
+function myAilingLabels(){
+  const out=[];
+  for(const p of PATIENTS){
+    const st=state[p.host]; if(!st) continue;
+    if(st.parts){
+      for(const pt of st.parts){
+        if(mine.has(pid(p.host,pt.key)) && ALARM.has(pt.ind)) out.push(pt.label);
+      }
+      if(mine.has(p.host) && ALARM.has(st.ind)) out.push(p.name);
+    } else {
+      if(mine.has(p.host) && ALARM.has(st.ind)) out.push(p.name);
+    }
+  }
+  return out;
+}
+
+// ── 카드 ─────────────────────────────────────────────────
+function condPill(ind, cls){
+  const c=COND[ind]||COND.unknown;
+  const s=document.createElement("span"); s.className=cls||"pill";
+  s.style.background=c.color; s.textContent=c.label; return s;
+}
 function patientCard(p){
-  const { ind, desc } = state[p.host] || { ind:"unknown", desc:"" };
-  const c = COND[ind] || COND.unknown;
-  const isMine = mine.has(p.host);
-  const card = document.createElement("div");
-  card.className = "card" + (isMine ? " mine" : "");
-  card.style.borderLeftColor = c.color;
-  card.innerHTML = `
-    ${isMine ? '<span class="mine-tag">마마의 환자</span>' : ''}
-    <div class="top">
-      <span class="ident"><span class="ico-slot"></span><span class="pname">${p.name}</span></span>
-      <span class="pill" style="background:${c.color}">${c.label}</span>
-    </div>
-    <div class="symptom">증상: ${desc || c.desc}</div>`;
-  card.querySelector(".ico-slot").replaceWith(makeIcon(p));
+  const st=state[p.host]||{ind:"unknown",desc:"",parts:null};
+  const c=COND[st.ind]||COND.unknown;
+  const isMine=serviceIsMine(p);
+  const card=document.createElement("div");
+  card.className="card"+(isMine?" mine":"");
+  card.style.borderLeftColor=c.color;
+  if(isMine){ const t=document.createElement("span"); t.className="mine-tag"; t.textContent="마마의 환자"; card.appendChild(t); }
+  const top=document.createElement("div"); top.className="top";
+  const ident=document.createElement("span"); ident.className="ident";
+  ident.appendChild(makeIcon(p));
+  const nm=document.createElement("span"); nm.className="pname"; nm.textContent=p.name; ident.appendChild(nm);
+  top.appendChild(ident); top.appendChild(condPill(st.ind));
+  card.appendChild(top);
+
+  if(st.parts){
+    const affected=st.parts.filter(pt=>(COND[pt.ind]||COND.unknown).rank>=1);
+    if(affected.length>0){
+      const wrap=document.createElement("div"); wrap.className="parts";
+      affected.forEach(pt=>{
+        const row=document.createElement("div"); row.className="part";
+        const left=document.createElement("span"); left.className="pleft";
+        left.appendChild(document.createTextNode("환부 · "+pt.label));
+        if(mine.has(pid(p.host,pt.key))){ const m=document.createElement("span"); m.className="mymark"; m.textContent="내 환자"; left.appendChild(m); }
+        row.appendChild(left); row.appendChild(condPill(pt.ind,"ppill"));
+        wrap.appendChild(row);
+      });
+      card.appendChild(wrap);
+    } else {
+      const s=document.createElement("div"); s.className="symptom"; s.textContent="증상: "+(st.desc||c.desc); card.appendChild(s);
+    }
+  } else {
+    const s=document.createElement("div"); s.className="symptom"; s.textContent="증상: "+(st.desc||c.desc); card.appendChild(s);
+  }
   return card;
 }
 
-function names(list){
-  const ns = list.map(p=>p.name);
-  if(ns.length<=3) return ns.join(", ");
-  return ns.slice(0,3).join(", ") + ` 외 ${ns.length-3}`;
-}
+function names(list){ return list.length<=3 ? list.join(", ") : list.slice(0,3).join(", ")+` 외 ${list.length-3}`; }
 
 function render(){
-  const ranked = PATIENTS.map(p=>({p, c:COND[(state[p.host]||{}).ind||"unknown"]}));
-  const ailing  = ranked.filter(x=>x.c.rank>=1)
-    .sort((a,b)=> (mine.has(b.p.host)-mine.has(a.p.host)) || (b.c.rank-a.c.rank));
-  const healthy = ranked.filter(x=>x.c.rank===0).map(x=>x.p);
+  const ranked=PATIENTS.map(p=>({p, c:COND[(state[p.host]||{}).ind||"unknown"]}));
+  const ailing=ranked.filter(x=>x.c.rank>=1)
+    .sort((a,b)=>(serviceIsMine(b.p)-serviceIsMine(a.p))||(b.c.rank-a.c.rank));
+  const healthy=ranked.filter(x=>x.c.rank===0).map(x=>x.p);
 
   // 의녀 내레이션
-  const alarmAll = PATIENTS.filter(p=>ALARM.has((state[p.host]||{}).ind));
-  const myAlarm  = alarmAll.filter(p=>mine.has(p.host));
-  const nar = document.getElementById("narration");
+  const nar=document.getElementById("narration");
+  const alarmAll=PATIENTS.filter(p=>ALARM.has((state[p.host]||{}).ind));
   if(mine.size>0){
-    nar.innerHTML = myAlarm.length>0
-      ? `의녀 왈, 「오늘 <b>${names(myAlarm)}</b> 의 맥이 흐트러졌사옵니다. 살펴 주시옵소서.」`
-      : `의녀 왈, 「마마의 환자 <b>${mine.size}</b>명, 오늘은 모두 평안하옵니다.」`;
+    const ail=myAilingLabels();
+    nar.innerHTML = ail.length>0
+      ? `의녀 왈, 「오늘 <b>${names(ail)}</b> 의 맥이 흐트러졌사옵니다. 살펴 주시옵소서.」`
+      : `의녀 왈, 「마마의 환자, 오늘은 모두 평안하옵니다.」`;
   } else {
     nar.innerHTML = alarmAll.length>0
-      ? `의녀 왈, 「의원에 <b>${alarmAll.length}</b>명이 앓고 있사옵니다. ‘내 환자 정하기’로 돌보실 이를 정하시옵소서.」`
+      ? `의녀 왈, 「의원에 <b>${alarmAll.length}</b>명이 앓고 있사옵니다. ‘내 환자 정하기’로 돌보실 부위를 정하시옵소서.」`
       : `의녀 왈, 「의원의 모든 환자가 평안하옵니다.」`;
   }
 
-  // 지금 살펴야 할 환자
-  const aw = document.getElementById("ailing-wrap"); aw.innerHTML="";
-  const at = document.createElement("div"); at.className="sec-title";
-  at.textContent = ailing.length>0 ? "지금 살펴야 할 환자" : "오늘의 회진";
-  aw.appendChild(at);
+  const aw=document.getElementById("ailing-wrap"); aw.innerHTML="";
+  const at=document.createElement("div"); at.className="sec-title";
+  at.textContent=ailing.length>0?"지금 살펴야 할 환자":"오늘의 회진"; aw.appendChild(at);
   if(ailing.length>0){
     const g=document.createElement("div"); g.className="grid";
-    ailing.forEach(x=> g.appendChild(patientCard(x.p)));
-    aw.appendChild(g);
+    ailing.forEach(x=>g.appendChild(patientCard(x.p))); aw.appendChild(g);
   } else {
     const calm=document.createElement("div"); calm.className="calm";
-    calm.textContent = "앓는 환자가 한 명도 없사옵니다. 의관과 의녀, 오늘은 한시름 놓사옵니다.";
-    aw.appendChild(calm);
+    calm.textContent="앓는 환자가 한 명도 없사옵니다. 의관과 의녀, 오늘은 한시름 놓사옵니다."; aw.appendChild(calm);
   }
 
-  // 평안한 환자 (접기)
   const hw=document.getElementById("healthy-wrap"); hw.innerHTML="";
   if(healthy.length>0){
     const bar=document.createElement("div"); bar.className="healthy-bar";
-    bar.innerHTML = `평안한 환자 <b>${healthy.length}</b>명 — 모두 맥이 고르옵니다. <span style="color:#5e7048">[ 펼쳐 보기 ]</span>`;
+    bar.innerHTML=`평안한 환자 <b>${healthy.length}</b>명 — 모두 맥이 고르옵니다. <span style="color:#5e7048">[ 펼쳐 보기 ]</span>`;
     const list=document.createElement("div"); list.className="healthy-list";
     healthy.forEach(p=>{
       const ch=document.createElement("span"); ch.className="h-chip";
       ch.appendChild(makeIcon(p,"h-ico"));
-      const nm=document.createElement("span"); nm.textContent = p.name + (mine.has(p.host)?" · 마마의 환자":"");
-      ch.appendChild(nm); list.appendChild(ch);
+      const nm=document.createElement("span"); nm.textContent=p.name+(serviceIsMine(p)?" · 마마의 환자":""); ch.appendChild(nm);
+      list.appendChild(ch);
     });
-    bar.onclick = ()=> list.classList.toggle("open");
+    bar.onclick=()=>list.classList.toggle("open");
     hw.appendChild(bar); hw.appendChild(list);
   }
 }
 
-// ── 환자 고르기 패널 ─────────────────────────────────────
+// ── 환자(부위) 고르기 패널 ───────────────────────────────
 function buildPicker(){
   const body=document.getElementById("pick-body"); body.innerHTML="";
   [...new Set(PATIENTS.map(p=>p.cat))].forEach(cat=>{
     const h=document.createElement("div"); h.className="pick-cat"; h.textContent=cat; body.appendChild(h);
     const wrap=document.createElement("div"); wrap.className="chips";
     PATIENTS.filter(p=>p.cat===cat).forEach(p=>{
-      const chip=document.createElement("span");
-      chip.className="chip"+(mine.has(p.host)?" on":"");
-      chip.appendChild(makeIcon(p));
-      const nm=document.createElement("span"); nm.textContent=p.name; chip.appendChild(nm);
-      chip.onclick=()=>{
-        mine.has(p.host)?mine.delete(p.host):mine.add(p.host);
-        saveMine(); chip.classList.toggle("on"); render();
-      };
-      wrap.appendChild(chip);
+      const items = p.parts ? p.parts.map(pt=>({id:pid(p.host,pt.key), label:pt.label}))
+                            : [{id:p.host, label:p.name}];
+      items.forEach(it=>{
+        const chip=document.createElement("span");
+        chip.className="chip"+(mine.has(it.id)?" on":"");
+        chip.appendChild(makeIcon(p));
+        const nm=document.createElement("span"); nm.textContent=it.label; chip.appendChild(nm);
+        chip.onclick=()=>{ mine.has(it.id)?mine.delete(it.id):mine.add(it.id); saveMine(); chip.classList.toggle("on"); render(); };
+        wrap.appendChild(chip);
+      });
     });
     body.appendChild(wrap);
   });
 }
 document.getElementById("mine-btn").onclick=()=>{
-  const pk=document.getElementById("picker");
-  pk.classList.toggle("open");
+  const pk=document.getElementById("picker"); pk.classList.toggle("open");
   if(pk.classList.contains("open")) buildPicker();
 };
 
 // ── 회진 ─────────────────────────────────────────────────
-async function rounds(){
-  await Promise.all(PATIENTS.map(diagnose));
-  render();
-}
-render();   // 골격 먼저
+async function rounds(){ await Promise.all(PATIENTS.map(diagnose)); render(); }
+render();
 rounds();
 setInterval(rounds, 60000);
 </script>
