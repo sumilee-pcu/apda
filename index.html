@@ -155,7 +155,8 @@ const PATIENTS = [
             {key:"api",label:"Claude API",match:/Claude API/},
             {key:"code",label:"Claude Code",match:/^Claude Code$/},
             {key:"cowork",label:"Claude Cowork",match:/Claude Cowork/} ] },
-  { name:"Gemini", host:"status.cloud.google.com", type:"gcp", cat:"모델 · API", domain:"gemini.google.com", match:/gemini|vertex ai|generative language|ai studio/i },
+  // 출처: Google Cloud 인시던트 피드. Gemini API(Vertex) 범위만 정직하게 — AI Studio·Antigravity·CLI는 공개 진단소가 없어 다루지 않음.
+  { name:"Gemini API", host:"status.cloud.google.com", type:"gcp", cat:"모델 · API", domain:"gemini.google.com", match:/gemini|generative language/i },
   { name:"Perplexity", host:"status.perplexity.com", type:"instatus", cat:"모델 · API", domain:"perplexity.ai" },
   { name:"Cohere", host:"status.cohere.com", type:"statuspage", cat:"모델 · API", domain:"cohere.com" },
   { name:"Groq", host:"groqstatus.com", type:"statuspage", cat:"모델 · API", domain:"groq.com" },
